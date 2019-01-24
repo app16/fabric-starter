@@ -4,11 +4,14 @@
 uncomment all default assigments
 
 
-export IP_ORDERER=130.147.175.222 IP1=130.147.175.222 IP2=130.147.175.150 IP3=130.147.175.150    on both system
+export IP_ORDERER=130.147.175.222 IP1=130.147.175.222 IP2=130.147.175.150 IP3=130.147.175.150    executed on both system
 
-Created 4 seperate folders for a & orderer on 222 and b & c on 150
+Created 4 seperate folders for a & orderer on machine1(222) and b & c on machine2 (150)
 USEEE GUAAKKKKEEEEEE for commands only
 USE NORMAL TERMINAL for cat & nano commands cuzz 1000 line limit on guake :(
+
+
+---To transfer network.sh to machine2-----------
 
 ----b scp
  scp network.sh philips@130.147.175.150:/home/philips/fabric/Multinode-al/fabric-starter-b
@@ -16,19 +19,19 @@ USE NORMAL TERMINAL for cat & nano commands cuzz 1000 line limit on guake :(
 ---c scp
 scp network.sh philips@130.147.175.150:/home/philips/fabric/Multinode-al/fabric-starter-c
 
--------------Steps to Run the multi node network
 
-./network.sh -m generate-peer -o a -a 4000 -w 8081 -c 7054 -0 7051 -1 7053 -2 7056 -3 7058  
-./network.sh -m generate-peer -o b -a 4001 -w 8082 -c 8054 -0 8051 -1 8053 -2 8056 -3 8058
-./network.sh -m generate-peer -o c -a 4002 -w 8083 -c 9054 -0 9051 -1 9053 -2 9056 -3 9058
+-------------Steps to Run the multi node network in the same order
 
-./network.sh -m generate-orderer
+./network.sh -m generate-peer -o a -a 4000 -w 8081 -c 7054 -0 7051 -1 7053 -2 7056 -3 7058  (machine1 -222)
+./network.sh -m generate-peer -o b -a 4001 -w 8082 -c 8054 -0 8051 -1 8053 -2 8056 -3 8058  (machine2 -150)
+./network.sh -m generate-peer -o c -a 4002 -w 8083 -c 9054 -0 9051 -1 9053 -2 9056 -3 9058  (machine2 -150)
 
-./network.sh -m up-orderer
+./network.sh -m generate-orderer    (machine1 -222)
+./network.sh -m up-orderer          (machine1 -222)
 
-./network.sh -m up-1 
-./network.sh -m up-2 
-./network.sh -m up-3 
+./network.sh -m up-1      (machine1 -222)
+./network.sh -m up-2      (machine2 -150)
+./network.sh -m up-3      (machine2 -150)
 
 // oderer port is 7050 and orderer www port is 8080
 
