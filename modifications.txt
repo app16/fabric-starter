@@ -1,0 +1,144 @@
+-e "s/WWW_PORT/$DEFAULT_WWW_PORT/g"  (line 167) ----------this is I have put again cuz port error 
+
+
+uncomment all default assigments
+
+
+export IP_ORDERER=130.147.175.222 IP1=130.147.175.222 IP2=130.147.175.150 IP3=130.147.175.150    on both system
+
+Created 4 seperate folders for a & orderer on 222 and b & c on 150
+USEEE GUAAKKKKEEEEEE for commands only
+USE NORMAL TERMINAL for cat & nano commands cuzz 1000 line limit on guake :(
+
+----b scp
+ scp network.sh philips@130.147.175.150:/home/philips/fabric/Multinode-al/fabric-starter-b
+
+---c scp
+scp network.sh philips@130.147.175.150:/home/philips/fabric/Multinode-al/fabric-starter-c
+
+-------------Steps to Run the multi node network
+
+./network.sh -m generate-peer -o a -a 4000 -w 8081 -c 7054 -0 7051 -1 7053 -2 7056 -3 7058  
+./network.sh -m generate-peer -o b -a 4001 -w 8082 -c 8054 -0 8051 -1 8053 -2 8056 -3 8058
+./network.sh -m generate-peer -o c -a 4002 -w 8083 -c 9054 -0 9051 -1 9053 -2 9056 -3 9058
+
+./network.sh -m generate-orderer
+
+./network.sh -m up-orderer
+
+./network.sh -m up-1 
+./network.sh -m up-2 
+./network.sh -m up-3 
+
+// oderer port is 7050 and orderer www port is 8080
+
+------Modifications
+----------------------function downloadartifactsorderer for loop #line 743
+
+"for ORG in ${ORG1} ${ORG2} ${ORG3};
+ do 
+ if [ $ORG = $ORG1 ] then DEFAULT_WWW_PORT=AWWWPORT elif [ $ORG == $ORG2 ] then DEFAULT_WWW_PORT=BWWWPORT elif [ $ORG == $ORG3 ] then DEFAULT_WWW_PORT=CWWWPORT fi 
+ wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/$one_peer.\${ORG}.$DOMAIN/tls http://www.\${ORG}.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/$one_peer.\${ORG}.$DOMAIN/tls/ca.crt; 
+ done"
+
+wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/peers/$one_peer.\${ORG}.$DOMAIN/tls http://www.\${ORG}.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/$one_peer.\${ORG}.$DOMAIN/tls/ca.crt;
+wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/peers/$one_peer.\${ORG}.$DOMAIN/tls http://www.\${ORG}.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/$one_peer.\${ORG}.$DOMAIN/tls/ca.crt;
+wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.$DOMAIN/peers/$one_peer.\${ORG}.$DOMAIN/tls http://www.\${ORG}.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/$one_peer.\${ORG}.$DOMAIN/tls/ca.crt;
+
+
+: ${OGa:="a"}
+: ${ORG1:="a" }
+: ${ORG2:="b" }
+if [ $ORG1 == $OGa ]
+then ORG1=ORG2 && echo $ORG2
+else echo "222"
+fi
+
+
+
+for one_peer in 'peer0' 'peer1'; do
+          c="for ORG in ${ORG1} ${ORG2} ${ORG3}; 
+          do if [ $ORG = $ORG1 ] then DEFAULT_WWW_PORT=AWWWPORT elif [ $ORG == $ORG2 ] then DEFAULT_WWW_PORT=BWWWPORT elif [ $ORG == $ORG3 ] then DEFAULT_WWW_PORT=CWWWPORT fi 
+          wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/$one_peer.\${ORG}.$DOMAIN/tls http://www.\${ORG}.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\${ORG}.$DOMAIN/peers/$one_peer.\${ORG}.$DOMAIN/tls/ca.crt; done"
+          echo ${c}
+          f="$GENERATED_DOCKER_COMPOSE_FOLDER/docker-compose-$DOMAIN.yaml"
+          docker-compose --file ${f} run --rm "cli.$DOMAIN" bash -c "${c} && chown -R $UID:$GID ."
+      done
+
+####  if else not working bcuz string is passed as varriable to bash in the container hence hard coded different ports to different string variable
+
+wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/peers/peer0.a.example.com/tls http://www.a.example.com:8081/crypto-config/peerOrganizations/a.example.com/peers/peer0.a.example.com/tls/ca.crt && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/peers/peer1.a.example.com/tls http://www.a.example.com:8081/crypto-config/peerOrganizations/a.example.com/peers/peer1.a.example.com/tls/ca.crt
+
+wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/peers/peer0.b.example.com/tls http://www.b.example.com:8082/crypto-config/peerOrganizations/b.example.com/peers/peer0.b.example.com/tls/ca.crt && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/peers/peer1.b.example.com/tls http://www.b.example.com:8082/crypto-config/peerOrganizations/b.example.com/peers/peer1.b.example.com/tls/ca.crt
+
+wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.example.com/peers/peer0.c.example.com/tls http://www.c.example.com:8083/crypto-config/peerOrganizations/c.example.com/peers/peer0.c.example.com/tls/ca.crt && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.example.com/peers/peer1.c.example.com/tls http://www.c.example.com:8083/crypto-config/peerOrganizations/c.example.com/peers/peer1.c.example.com/tls/ca.crt
+
+
+------------function  downloadmember msp  #line 624
+
+wget --verbose -N --directory-prefix crypto-config/peerOrganizations/a.example.com/peers/peer0.a.example.com/tls http://www.a.example.com:8081/crypto-config/peerOrganizations/a.example.com/peers/peer0.a.example.com/tls/ca.crt
+$OGa="a"
+$OGb="b"
+$OGc="c"
+if [ $ORG = $ORG1 ] then DEFAULT_WWW_PORT=AWWWPORT elif [ $ORG == $ORG2 ] then DEFAULT_WWW_PORT=BWWWPORT elif [ $ORG == $ORG3 ] then DEFAULT_WWW_PORT=CWWWPORT fi
+
+
+for ORG in ${@}; 
+do 
+if [ $ORG = $ORG1 ] then DEFAULT_WWW_PORT=AWWWPORT elif [ $ORG == $ORG2 ] then DEFAULT_WWW_PORT=BWWWPORT elif [ $ORG == $ORG3 ] then DEFAULT_WWW_PORT=CWWWPORT fi 
+wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/admincerts http://www.\$ORG.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/admincerts/Admin@\$ORG.$DOMAIN-cert.pem 
+&& wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/cacerts http://www.\$ORG.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/cacerts/ca.\$ORG.$DOMAIN-cert.pem 
+&& wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/tlscacerts http://www.\$ORG.$DOMAIN:$DEFAULT_WWW_PORT/crypto-config/peerOrganizations/\$ORG.$DOMAIN/msp/tlscacerts/tlsca.\$ORG.$DOMAIN-cert.pem
+; 
+done
+
+
+wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/msp/admincerts http://www.a.example.com:8081/crypto-config/peerOrganizations/a.example.com/msp/admincerts/Admin@a.example.com-cert.pem 
+&& wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/msp/cacerts http://www.a.example.com:8081/crypto-config/peerOrganizations/a.example.com/msp/cacerts/ca.a.example.com-cert.pem 
+&& wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/msp/tlscacerts http://www.a.example.com:8081/crypto-config/peerOrganizations/a.example.com/msp/tlscacerts/tlsca.a.example.com-cert.pem
+
+&& wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/msp/admincerts http://www.b.example.com:8082/crypto-config/peerOrganizations/b.example.com/msp/admincerts/Admin@b.example.com-cert.pem 
+&& wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/msp/cacerts http://www.b.example.com:8082/crypto-config/peerOrganizations/b.example.com/msp/cacerts/ca.b.example.com-cert.pem 
+&& wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/msp/tlscacerts http://www.b.example.com:8082/crypto-config/peerOrganizations/b.example.com/msp/tlscacerts/tlsca.b.example.com-cert.pem
+
+&& wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.example.com/msp/admincerts http://www.c.example.com:8083/crypto-config/peerOrganizations/c.example.com/msp/admincerts/Admin@c.example.com-cert.pem 
+&& wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.example.com/msp/cacerts http://www.c.example.com:8083/crypto-config/peerOrganizations/c.example.com/msp/cacerts/ca.c.example.com-cert.pem 
+&& wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.example.com/msp/tlscacerts http://www.c.example.com:8083/crypto-config/peerOrganizations/c.example.com/msp/tlscacerts/tlsca.c.example.com-cert.pem
+
+wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/msp/admincerts http://www.a.example.com:8081/crypto-config/peerOrganizations/a.example.com/msp/admincerts/Admin@a.example.com-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/msp/cacerts http://www.a.example.com:8081/crypto-config/peerOrganizations/a.example.com/msp/cacerts/ca.a.example.com-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/msp/tlscacerts http://www.a.example.com:8081/crypto-config/peerOrganizations/a.example.com/msp/tlscacerts/tlsca.a.example.com-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/msp/admincerts http://www.b.example.com:8082/crypto-config/peerOrganizations/b.example.com/msp/admincerts/Admin@b.example.com-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/msp/cacerts http://www.b.example.com:8082/crypto-config/peerOrganizations/b.example.com/msp/cacerts/ca.b.example.com-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/msp/tlscacerts http://www.b.example.com:8082/crypto-config/peerOrganizations/b.example.com/msp/tlscacerts/tlsca.b.example.com-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.example.com/msp/admincerts http://www.c.example.com:8083/crypto-config/peerOrganizations/c.example.com/msp/admincerts/Admin@c.example.com-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.example.com/msp/cacerts http://www.c.example.com:8083/crypto-config/peerOrganizations/c.example.com/msp/cacerts/ca.c.example.com-cert.pem && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.example.com/msp/tlscacerts http://www.c.example.com:8083/crypto-config/peerOrganizations/c.example.com/msp/tlscacerts/tlsca.c.example.com-cert.pem
+
+
+
+ports sorting for orderer up & peer up commands-----------------------------
+
+    orderer up no issues ---------------
+
+    ----------------Peer Up -----------------
+    
+    downloadArtifactsMember function             #line 782
+        function downloadChannelTxFiles          #line 662       ---
+                                                                    }
+        function downloadNetworkConfig           #line 649          }---->  from DEFAULT_WWW_PORT to  8080 (orderer's www port ) to download these files from orderer
+                                                                    }
+        function downloading orderer cert file   #line 714       ---
+
+        downloading member cert files  #TODO download not from all members but from the orderer  #line 721
+                from individual orgs cypto files to orderers crypto files cuz of that comment (http://orderer.example.com:7050) 7050 is orderer port
+                    doesnt work ---^
+                    so hard coded downloading certs from members itself---v
+                                                                          v
+                                                                          v                                                                    
+            wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/peers/peer0.a.example.com/tls http://orderer.example.com:7050/crypto-config/peerOrganizations/a.example.com/peers/peer0.a.example.com/tls/ca.crt && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/a.example.com/peers/peer1.a.example.com/tls http://orderer.example.com:7050/crypto-config/peerOrganizations/a.example.com/peers/peer1.a.example.com/tls/ca.crt
+            wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/peers/peer0.b.example.com/tls http://orderer.example.com:7050/crypto-config/peerOrganizations/b.example.com/peers/peer0.b.example.com/tls/ca.crt && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/b.example.com/peers/peer1.b.example.com/tls http://orderer.example.com:7050/crypto-config/peerOrganizations/b.example.com/peers/peer1.b.example.com/tls/ca.crt
+            wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.example.com/peers/peer0.c.example.com/tls http://orderer.example.com:7050/crypto-config/peerOrganizations/c.example.com/peers/peer0.c.example.com/tls/ca.crt && wget ${WGET_OPTS} --directory-prefix crypto-config/peerOrganizations/c.example.com/peers/peer1.c.example.com/tls http://orderer.example.com:7050/crypto-config/peerOrganizations/c.example.com/peers/peer1.c.example.com/tls/ca.crt
+ 
+
+
+info -- (installALL function & instantiateChaincode function) chaincode installation is done through peer0 of org1 port 7051 always (hard coded by altoros)
+
+x509 error
+        uncommented remove artifacts from generate-peer and generate-orderer and all rm commands in remove artifacts function
+        there were existing certs in orderer folder hence mismatch of certs 
+
+
+
